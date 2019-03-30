@@ -7,7 +7,7 @@ ryezone_labs_domain_admin_password: My$uper$ecretP@$$w0rd
 sssd_distinguished_name: "dc={{ ryezone_labs_domain_organization }},dc={{ ryezone_labs_domain_suffix}}"
 
 sssd_domains:
-  "default":
+  default:
     id_provider: ldap
     auth_provider: ldap
     ldap_schema: rfc2307
@@ -18,7 +18,7 @@ sssd_domains:
     ldap_search_base: "{{ sssd_distinguished_name }}"
     ldap_user_search_base: "ou=users,{{ sssd_distinguished_name }}"
     ldap_group_search_base: "ou=groups,{{ sssd_distinguished_name }}"
-    ldap_sudo_search_base : "ou=sudoers,{{ sssd_distinguished_name }}"
+    ldap_sudo_search_base: "ou=sudoers,{{ sssd_distinguished_name }}"
     ldap_user_object_class: posixAccount
     ldap_user_gecos: cn
     sudo_provider: ldap
@@ -26,6 +26,7 @@ sssd_domains:
     enumerate: true
     use_fully_qualified_names: false
 
+sssd_config_file_version: 2
 sssd_config_services:
   - nss
   - pam
