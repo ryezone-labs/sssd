@@ -1,7 +1,7 @@
 ---
 - name: Install SSSD packages
   package:
-    name: "{{sssd_packages}}"
+    name: "{{ sssd_packages }}"
     state: present
   become: yes
 
