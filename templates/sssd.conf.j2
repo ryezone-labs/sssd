@@ -2,12 +2,29 @@
 
 [sssd]
 config_file_version = {{ sssd_config_file_version }}
-services = {% for service in sssd_config_services %}{{ service }}{{ , if not loop.last }}{% endfor %}}
+services = {% for service in sssd_config_services -%}
+  {{ service }}{{ ',' if not loop.last else '' }}
+{%- endfor %}
 
-# {% for section in sssd.config.keys() %}
-# [{{ section }}]
-# {% for key, value in sssd.config[section].iteritems() %}
-# {{ key }} = {{ value }}
-# {% endfor %}
+domains = {% for domain in sssd_domains.keys() -%}
+    {{ domain }}{{ ',' if not loop.last else '' }}
+{%- endfor %}
 
-# {% endfor %}
+
+[nss]
+{% for key,value in sssd_nss.iteritems() -%}
+{{ key }} = {{ value }}
+{% endfor %}
+
+[pam]
+{% for key,value in sssd_pam.iteritems() -%}
+{{ key }} = {{ value }}
+{% endfor %}
+
+{% for domain in sssd_domains.keys() %}
+[domain/{{domain}}]
+{% for key,value in sssd_domains[domain].iteritems() -%}
+{{ key }} = {{ value }}
+{% endfor %}
+
+{% endfor %}

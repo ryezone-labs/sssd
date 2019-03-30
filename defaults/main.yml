@@ -1,4 +1,39 @@
 ---
+ryezone_labs_domain_suffix: local
+ryezone_labs_domain_organization: domain
+ryezone_labs_domain_controller_hostname: dc
+ryezone_labs_domain_admin_password: My$uper$ecretP@$$w0rd
+
+sssd_distinguished_name: "dc={{ ryezone_labs_domain_organization }},dc={{ ryezone_labs_domain_suffix}}"
+
 sssd_domains:
-  - RZ_LAB
-  - RB_BOW
+  "default":
+    id_provider: ldap
+    auth_provider: ldap
+    ldap_schema: rfc2307
+    ldap_uri: "ldaps://{{ ryezone_labs_domain_controller_hostname }}.{{ ryezone_labs_domain_organization }}.{{ ryezone_labs_domain_suffix }}"
+    ldap_default_bind_dn: "cn=admin,{{ sssd_distinguished_name }}"
+    ldap_default_authtok: "{{ ryezone_labs_domain_admin_password }}"
+    ldap_default_authtok_type: password
+    ldap_search_base: "{{ sssd_distinguished_name }}"
+    ldap_user_search_base: "ou=users,{{ sssd_distinguished_name }}"
+    ldap_group_search_base: "ou=groups,{{ sssd_distinguished_name }}"
+    ldap_sudo_search_base : "ou=sudoers,{{ sssd_distinguished_name }}"
+    ldap_user_object_class: posixAccount
+    ldap_user_gecos: cn
+    sudo_provider: ldap
+    cache_credentials: true
+    enumerate: true
+    use_fully_qualified_names: false
+
+sssd_config_services:
+  - nss
+  - pam
+  - sudo
+
+sssd_nss:
+  fallback_homedir: /home/%u
+  shell_fallback: /bin/bash
+  debug_level: 6
+
+sssd_pam: {}
