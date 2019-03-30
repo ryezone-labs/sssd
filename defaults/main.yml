@@ -1,0 +1,4 @@
+---
+sssd_domains:
+  - RZ_LAB
+  - RB_BOW

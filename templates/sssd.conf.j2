@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+[sssd]
+config_file_version = {{ sssd_config_file_version }}
+services = {% for service in sssd_config_services %}{{ service }}{{ , if not loop.last }}{% endfor %}}
+
+# {% for section in sssd.config.keys() %}
+# [{{ section }}]
+# {% for key, value in sssd.config[section].iteritems() %}
+# {{ key }} = {{ value }}
+# {% endfor %}
+
+# {% endfor %}
