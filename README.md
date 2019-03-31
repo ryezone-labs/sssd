@@ -1,38 +1,145 @@
-Role Name
+ryezone_labs.sssd
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role installs and configures sssd to connect to an ldap domain.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+### Global Variables
 
-Dependencies
-------------
+- `ryezone_labs_domain_suffix` (string)
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+   Domain suffix to use when creating the domain.
+   
+   Defaults to `local`.
 
-Example Playbook
-----------------
+- `ryezone_labs_domain_organization` (string)
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+   Organization name to use when creating the domain.
+   
+   Defaults to `domain`.
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- `ryezone_labs_domain_admin_password` (string)
+
+   Password to use for the default admin account `cn=admin,dc={{ dc_org }},dc={{ dc_suffix }}`.
+   
+   Defaults to `My$uper$ecretP@$$w0rd`.
+
+- `ryezone_labs_domain_controller_hostname` (string)
+
+   Short hostname of a domain controller the host can connect to for authorization information.
+
+   Defaults to `dc`
+
+### Role Variables
+
+- `sssd_distinguished_name` (string)
+
+   Distinguished name of the domain being connected to.
+
+   Defaults to `dc={{ ryezone_labs_domain_organization }},dc={{ ryezone_labs_domain_suffix}}`.
+
+- `sssd_domain_controller` (string)
+
+   LDAP Uri of the domain controller to which the host should connect.
+
+   Defaults to `ldaps://{{ ryezone_labs_domain_controller_hostname }}.{{ ryezone_labs_domain_organization }}.{{ ryezone_labs_domain_suffix }}`
+
+- `sssd_bind_dn` (string)
+
+   LDAP account authorized to query the directory for authentication information.
+
+   Defaults to `cn=admin,{{ sssd_distinguished_name }}`
+
+- `sssd_bind_authtok` (string)
+
+   Authentication to use with `sssd_bind_dn`.
+
+   Defaults to `{{ ryezone_labs_domain_admin_password }}`.
+
+- `sssd_bind_authtok_type` (string)
+
+   Sets the type of bind authentication token being used.
+
+   Defaults to `password`.
+
+- `sssd_config_file_version` (int)
+
+   Configures the file version of sssd.conf to use.
+
+   Defaults to `2`.
+
+- `sssd_config_services` (list of string)
+
+   Configures the services provided by sssd.
+
+   Defaults to `[nss, pam, sudo]`.
+
+- `sssd_packages` (list of string)
+
+   Default packages to install when installing sssd.
+
+   Defaults to `[libnss-ldap, sssd, libnss-sss]`.
+
+### Role Variables (nss)
+
+- `sssd_nss` (hash)
+
+   This hash mirrors the NSS configuration section documented in the [sssd.conf MAN page ](https://linux.die.net/man/5/sssd.conf).
+
+   Defaults to:
+
+   ```yaml
+   sssd_nss:
+     fallback_homedir: /home/%u
+     shell_fallback: /bin/bash
+     debug_level: 6
+   ```
+
+### Role Variables (pam)
+
+- `sssd_pam` (hash)
+
+   This hash mirrors the PAM configuration section documented in the [sssd.conf MAN page ](https://linux.die.net/man/5/sssd.conf).
+
+   Defaults to:
+
+   ```yaml
+   sssd_pam: {}
+   ```
+
+### Role Variables (domain/DOMAIN)
+
+- `sssd_domains` (hash)
+
+   This hash mirrors the Domain Sections configuration section documented in the [sssd.conf MAN page ](https://linux.die.net/man/5/sssd.conf).
+
+   Defaults to:
+
+   ```yaml
+   sssd_domains:
+     default:
+       id_provider: ldap
+       auth_provider: ldap
+       ldap_schema: rfc2307
+       ldap_uri: "{{ sssd_domain_controller }}"
+       ldap_default_bind_dn: "{{ sssd_bind_dn }}"
+       ldap_default_authtok: "{{ sssd_bind_authtok }}"
+       ldap_default_authtok_type: "{{ sssd_bind_authtok_type }}"
+       ldap_search_base: "{{ sssd_distinguished_name }}"
+       ldap_user_search_base: "ou=users,{{    sssd_distinguished_name }}"
+       ldap_group_search_base: "ou=groups,{{    sssd_distinguished_name }}"
+       ldap_sudo_search_base: "ou=sudoers,{{    sssd_distinguished_name }}"
+       ldap_user_object_class: posixAccount
+       ldap_user_gecos: cn
+       sudo_provider: ldap
+       cache_credentials: true
+       enumerate: true
+       use_fully_qualified_names: false
+   ```
 
 License
 -------
 
 BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).

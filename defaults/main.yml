@@ -5,16 +5,20 @@ ryezone_labs_domain_controller_hostname: dc
 ryezone_labs_domain_admin_password: My$uper$ecretP@$$w0rd
 
 sssd_distinguished_name: "dc={{ ryezone_labs_domain_organization }},dc={{ ryezone_labs_domain_suffix}}"
+sssd_domain_controller: "ldaps://{{ ryezone_labs_domain_controller_hostname }}.{{ ryezone_labs_domain_organization }}.{{ ryezone_labs_domain_suffix }}"
+sssd_bind_dn: "cn=admin,{{ sssd_distinguished_name }}"
+sssd_bind_authtok: "{{ ryezone_labs_domain_admin_password }}"
+sssd_bind_authtok_type: password
 
 sssd_domains:
   default:
     id_provider: ldap
     auth_provider: ldap
     ldap_schema: rfc2307
-    ldap_uri: "ldaps://{{ ryezone_labs_domain_controller_hostname }}.{{ ryezone_labs_domain_organization }}.{{ ryezone_labs_domain_suffix }}"
-    ldap_default_bind_dn: "cn=admin,{{ sssd_distinguished_name }}"
-    ldap_default_authtok: "{{ ryezone_labs_domain_admin_password }}"
-    ldap_default_authtok_type: password
+    ldap_uri: "{{ sssd_domain_controller }}"
+    ldap_default_bind_dn: "{{ sssd_bind_dn }}"
+    ldap_default_authtok: "{{ sssd_bind_authtok }}"
+    ldap_default_authtok_type: "{{ sssd_bind_authtok_type }}"
     ldap_search_base: "{{ sssd_distinguished_name }}"
     ldap_user_search_base: "ou=users,{{ sssd_distinguished_name }}"
     ldap_group_search_base: "ou=groups,{{ sssd_distinguished_name }}"
