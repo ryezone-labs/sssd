@@ -38,3 +38,8 @@ sssd_nss:
   debug_level: 6
 
 sssd_pam: {}
+
+sssd_packages:
+  - libnss-ldap
+  - sssd
+  - libnss-sss
