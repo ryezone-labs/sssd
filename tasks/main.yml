@@ -3,6 +3,7 @@
   package:
     name: "{{ sssd_packages }}"
     state: present
+    update_cache: yes
   become: yes
 
 - name: update /usr/share/pam-configs/mkhomedir default setting
